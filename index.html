@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aprende Termux — SoyZyrox</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #10091c;
+        color: #e6e6f0;
+        line-height: 1.6;
+    }
+    header {
+        position: relative;
+        background: linear-gradient(135deg, #2e1065, #150a2e);
+        padding: 40px 20px;
+        text-align: center;
+        border-bottom: 3px solid #a78bfa;
+    }
+    .badge {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: #1c1330;
+        border: 1px solid #a78bfa;
+        color: #c4b5fd;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+    header h1 { color: #c4b5fd; font-size: 2em; }
+    header p { color: #a1a1aa; margin-top: 10px; }
+
+    .search-wrap {
+        max-width: 800px;
+        margin: 20px auto 0;
+        padding: 0 20px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    #buscador {
+        flex: 1;
+        min-width: 200px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        border: 1px solid #3f2d6b;
+        background: #1c1330;
+        color: #e6e6f0;
+        font-size: 1em;
+    }
+    #buscador:focus { outline: none; border-color: #a78bfa; }
+    #contador {
+        color: #7c7c92;
+        font-size: 0.85em;
+        text-align: center;
+        margin-top: 8px;
+    }
+
+    nav {
+        background: #1c1330;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    nav a {
+        color: #c4b5fd;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.85em;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+    nav a:hover { background: #2e1065; }
+
+    main { max-width: 800px; margin: 0 auto; padding: 30px 20px; }
+    section {
+        background: #1c1330;
+        border: 1px solid #3f2d6b;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 25px;
+        scroll-margin-top: 60px;
+    }
+    section.oculto { display: none; }
+    section h2 {
+        color: #c4b5fd;
+        margin-bottom: 12px;
+        border-bottom: 1px solid #3f2d6b;
+        padding-bottom: 8px;
+    }
+    code {
+        background: #10091c;
+        color: #fb923c;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+    .pre-wrap {
+        position: relative;
+        margin-top: 10px;
+    }
+    pre {
+        background: #10091c;
+        padding: 15px;
+        padding-right: 70px;
+        border-radius: 6px;
+        overflow-x: auto;
+        border: 1px solid #3f2d6b;
+        font-size: 0.9em;
+    }
+    .btn-copiar {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #a78bfa;
+        color: #10091c;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75em;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .btn-copiar:active { transform: scale(0.95); }
+    .btn-copiar.copiado { background: #4ade80; }
+
+    ul { margin-left: 20px; margin-top: 10px; }
+    a.repo {
+        display: inline-block;
+        color: #67e8f9;
+        text-decoration: none;
+        border-bottom: 1px dotted #67e8f9;
+    }
+    footer {
+        text-align: center;
+        padding: 20px;
+        color: #6b7280;
+        font-size: 0.85em;
+        border-top: 1px solid #3f2d6b;
+    }
+    #sin-resultados {
+        text-align: center;
+        color: #6b7280;
+        display: none;
+        padding: 20px;
+    }
+    .subir {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #a78bfa;
+        color: #10091c;
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        font-size: 1.2em;
+        font-weight: bold;
+        display: none;
+        cursor: pointer;
+        z-index: 20;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <span class="badge">🎥 SoyZyrox</span>
+    <h1>📱 Aprende Termux</h1>
+    <p>Guía completa de comandos, redes, seguridad y herramientas</p>
+    <div class="search-wrap">
+        <input type="text" id="buscador" placeholder="Buscar en la guía... (ej: nmap, git, python)">
+    </div>
+    <p id="contador"></p>
+</header>
+
+<nav>
+    <a href="#basico">Básicos</a>
+    <a href="#paquetes">Paquetes</a>
+    <a href="#almacenamiento">Almacenamiento</a>
+    <a href="#atajos">Atajos</a>
+    <a href="#git">Git/GitHub</a>
+    <a href="#nmap">Nmap</a>
+    <a href="#osint">OSINT</a>
+    <a href="#redes">Redes</a>
+    <a href="#web">Web</a>
+    <a href="#criptografia">Cripto</a>
+    <a href="#scripting">Scripting</a>
+    <a href="#monitoreo">Monitoreo</a>
+    <a href="#forense">Forense</a>
+    <a href="#hardening">Hardening</a>
+    <a href="#repos">Repositorios</a>
+    <a href="#etica">Ética</a>
+</nav>
+
+<main>
+
+<p id="sin-resultados">No se encontraron resultados.</p>
+
+<section id="basico">
+    <h2>Comandos básicos de Linux/Termux</h2>
+    <ul>
+        <li><code>ls</code> — lista archivos y carpetas</li>
+        <li><code>cd carpeta</code> — entra a una carpeta</li>
+        <li><code>cd ..</code> — sube un nivel</li>
+        <li><code>pwd</code> — muestra la ruta actual</li>
+        <li><code>mkdir nombre</code> — crea una carpeta</li>
+        <li><code>touch archivo</code> — crea un archivo vacío</li>
+        <li><code>rm archivo</code> — elimina un archivo</li>
+        <li><code>rm -r carpeta</code> — elimina una carpeta y su contenido</li>
+        <li><code>clear</code> — limpia la pantalla</li>
+    </ul>
+</section>
+
+<section id="paquetes">
+    <h2>Gestión de paquetes</h2>
+    <div class="pre-wrap">
+        <pre>pkg update && pkg upgrade
+pkg install nombre
+pkg uninstall nombre
+pkg list-installed
+pkg search palabra</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+    <p>Paquetes útiles: <code>git</code>, <code>python</code>, <code>nodejs</code>, <code>php</code>, <code>openssh</code>, <code>apache2</code>.</p>
+</section>
+
+<section id="almacenamiento">
+    <h2>Acceso al almacenamiento del teléfono</h2>
+    <div class="pre-wrap">
+        <pre>termux-setup-storage</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+    <p>Pide permiso para acceder a tus archivos. Aparece una carpeta <code>storage</code> con accesos a Descargas, DCIM, Música, etc.</p>
+</section>
+
+<section id="atajos">
+    <h2>Atajos y trucos útiles</h2>
+    <ul>
+        <li><code>Ctrl+Alt+C</code> — abre nueva sesión</li>
+        <li><code>Volumen abajo + tecla</code> — teclas especiales (Esc, Tab, flechas)</li>
+        <li><code>history</code> — comandos usados anteriormente</li>
+        <li><code>nano archivo</code> — edita un archivo de texto</li>
+        <li><code>exit</code> — cierra la sesión actual</li>
+    </ul>
+</section>
+
+<section id="git">
+    <h2>Git y GitHub</h2>
+    <div class="pre-wrap">
+        <pre>pkg install git
+git config --global user.name "TuNombre"
+git config --global user.email "tu@correo.com"
+git clone https://github.com/usuario/repo.git
+git add .
+git commit -m "mensaje"
+git push origin main
+git pull</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+    <p>Para subir cambios necesitas una cuenta en GitHub y, normalmente, un token de acceso personal en vez de contraseña.</p>
+</section>
+
+<section id="nmap">
+    <h2>Introducción a Nmap</h2>
+    <p>Escaneo de redes para auditorías y administración. Úsalo solo en redes/equipos propios o con autorización explícita.</p>
+    <div class="pre-wrap">
+        <pre>pkg install nmap
+nmap 192.168.1.1
+nmap -sV 192.168.1.1
+nmap -p 1-1000 192.168.1.1
+nmap 192.168.1.0/24</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+    <p>Practica en tu red doméstica o en laboratorios como TryHackMe o Hack The Box.</p>
+</section>
+
+<section id="osint">
+    <h2>Introducción a OSINT</h2>
+    <p>Recolección de información pública, usada en investigación, periodismo y ciberseguridad defensiva.</p>
+    <ul>
+        <li><strong>whois</strong> — registro de dominios</li>
+        <li><strong>theHarvester</strong> — correos y subdominios públicos</li>
+        <li><strong>Google Dorking</strong> — <code>site:</code>, <code>filetype:</code>, <code>intitle:</code></li>
+        <li><strong>Shodan</strong> — dispositivos conectados a internet</li>
+    </ul>
+    <div class="pre-wrap">
+        <pre>pkg install whois
+whois ejemplo.com</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+</section>
+
+<section id="redes">
+    <h2>Herramientas de red</h2>
+    <ul>
+        <li><strong>tcpdump</strong> — captura tráfico de red</li>
+        <li><strong>netstat / ss</strong> — conexiones activas y puertos</li>
+        <li><strong>traceroute</strong> — ruta de paquetes hasta un destino</li>
+        <li><strong>dig / nslookup</strong> — consultas DNS</li>
+        <li><strong>curl / wget</strong> — peticiones HTTP</li>
+    </ul>
+    <div class="pre-wrap">
+        <pre>pkg install tcpdump net-tools traceroute dnsutils curl wget</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+</section>
+
+<section id="web">
+    <h2>Herramientas de análisis web</h2>
+    <ul>
+        <li><strong>Nikto</strong> — escáner de vulnerabilidades básicas (requiere autorización)</li>
+        <li><strong>httpie</strong> — cliente HTTP legible</li>
+        <li><strong>gobuster / dirb</strong> — descubre rutas en un sitio propio o autorizado</li>
+        <li><strong>Wappalyzer</strong> — tecnologías usadas en un sitio</li>
+    </ul>
+    <div class="pre-wrap">
+        <pre>pkg install nikto httpie</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+</section>
+
+<section id="criptografia">
+    <h2>Criptografía y contraseñas</h2>
+    <ul>
+        <li><strong>openssl</strong> — claves, certificados, hashes, cifrado</li>
+        <li><strong>gpg</strong> — cifrado y firma de archivos</li>
+        <li><strong>hashid</strong> — identifica el tipo de un hash</li>
+        <li><strong>john / hashcat</strong> — auditoría de contraseñas propias</li>
+    </ul>
+    <div class="pre-wrap">
+        <pre>pkg install openssl-tool gnupg</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+</section>
+
+<section id="scripting">
+    <h2>Automatización y scripting</h2>
+    <ul>
+        <li><strong>Python</strong> — automatización, scraping, prototipos</li>
+        <li><strong>Bash scripting</strong> — automatiza comandos repetitivos</li>
+        <li><strong>tmux</strong> — varias sesiones de terminal en paralelo</li>
+    </ul>
+    <div class="pre-wrap">
+        <pre>pkg install python tmux git</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+</section>
+
+<section id="monitoreo">
+    <h2>Monitoreo del sistema</h2>
+    <ul>
+        <li><strong>htop</strong> — procesos y uso de CPU/RAM</li>
+        <li><strong>neofetch</strong> — información del sistema</li>
+        <li><strong>df -h</strong> — espacio de almacenamiento</li>
+        <li><strong>termux-battery-status</strong> — estado de batería</li>
+    </ul>
+    <div class="pre-wrap">
+        <pre>pkg install htop neofetch termux-api</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+</section>
+
+<section id="forense">
+    <h2>Fundamentos de forense digital</h2>
+    <ul>
+        <li><strong>exiftool</strong> — metadatos de imágenes y documentos</li>
+        <li><strong>binwalk</strong> — contenido embebido en binarios</li>
+        <li><strong>sha256sum / md5sum</strong> — verifica integridad de archivos</li>
+        <li><strong>file</strong> — identifica el tipo real de un archivo</li>
+    </ul>
+    <div class="pre-wrap">
+        <pre>pkg install exiftool binwalk</pre>
+        <button class="btn-copiar">Copiar</button>
+    </div>
+</section>
+
+<section id="hardening">
+    <h2>Hardening básico</h2>
+    <ul>
+        <li>Mantén Termux actualizado con <code>pkg upgrade</code></li>
+        <li>Contraseñas fuertes para SSH (<code>passwd</code>)</li>
+        <li>Con <code>openssh</code>, usa llaves en vez de contraseña</li>
+        <li>Revisa procesos activos con <code>htop</code></li>
+        <li>No expongas Apache a internet sin firewall/HTTPS/autenticación</li>
+    </ul>
+</section>
+
+<section id="repos">
+    <h2>Repositorios recomendados</h2>
+    <ul>
+        <li><a class="repo" href="https://github.com/termux/termux-app" target="_blank">termux/termux-app</a> — repositorio oficial de Termux</li>
+        <li><a class="repo" href="https://github.com/danielmiessler/SecLists" target="_blank">danielmiessler/SecLists</a> — listas de palabras para pruebas de seguridad autorizadas</li>
+        <li><a class="repo" href="https://github.com/nmap/nmap" target="_blank">nmap/nmap</a> — código fuente de Nmap</li>
+        <li><a class="repo" href="https://github.com/sundowndev/PhoneInfoga" target="_blank">sundowndev/PhoneInfoga</a> — OSINT sobre números telefónicos públicos</li>
+    </ul>
+</section>
+
+<section id="etica">
+    <h2>Uso ético y legal</h2>
+    <p>Estas herramientas son usadas por profesionales de seguridad, pero pueden causar daño si se usan mal. Antes de escanear o investigar algo que no es tuyo:</p>
+    <ul>
+        <li>Obtén autorización por escrito cuando sea posible</li>
+        <li>Practica en entornos legales (laboratorios propios, plataformas CTF)</li>
+        <li>Conoce las leyes de tu país sobre acceso no autorizado a sistemas</li>
+    </ul>
+</section>
+
+</main>
+
+<footer>
+    Guía creada por <strong>SoyZyrox</strong> · Editada con GNU nano en Termux
+</footer>
+
+<button class="subir" id="btnSubir" title="Subir">↑</button>
+
+<script>
+    const buscador = document.getElementById('buscador');
+    const secciones = document.querySelectorAll('main section');
+    const sinResultados = document.getElementById('sin-resultados');
+    const contador = document.getElementById('contador');
+
+    buscador.addEventListener('input', () => {
+        const termino = buscador.value.toLowerCase().trim();
+        let visibles = 0;
+
+        secciones.forEach(sec => {
+            const texto = sec.textContent.toLowerCase();
+            if (termino === '' || texto.includes(termino)) {
+                sec.classList.remove('oculto');
+                visibles++;
+            } else {
+                sec.classList.add('oculto');
+            }
+        });
+
+        sinResultados.style.display = visibles === 0 ? 'block' : 'none';
+        contador.textContent = termino === '' ? '' : `${visibles} sección(es) encontrada(s)`;
+    });
+
+    document.querySelectorAll('.btn-copiar').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const texto = btn.previousElementSibling.textContent;
+            navigator.clipboard.writeText(texto).then(() => {
+                btn.textContent = '✓ Copiado';
+                btn.classList.add('copiado');
+                setTimeout(() => {
+                    btn.textContent = 'Copiar';
+                    btn.classList.remove('copiado');
+                }, 1500);
+            });
+        });
+    });
+
+    const btnSubir = document.getElementById('btnSubir');
+    window.addEventListener('scroll', () => {
+        btnSubir.style.display = window.scrollY > 300 ? 'block' : 'none';
+    });
+    btnSubir.addEventListener('click', () => window.scrollTo({top: 0, behavior: 'smooth'}));
+</script>
+
+</body>
+</html>
