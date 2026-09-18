@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZyroxHub — Herramientas, OSINT y Tecnología</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0d0c; --surface:#121614; --surface-2:#181d1a; --line:#243029;
+    --teal:#4f9d8a; --teal-dim:#356355; --amber:#d1943c;
+    --text:#e4ece7; --text-dim:#8fa398;
+    color-scheme: dark;
+  }
+  html[data-theme="light"]{
+    --bg:#f3f1ea; --surface:#ffffff; --surface-2:#eae7dd; --line:#d8d3c4;
+    --teal:#2f7d69; --teal-dim:#a9c9bf; --amber:#b06a1e;
+    --text:#1c211d; --text-dim:#5c6a60;
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;line-height:1.55;transition:background .2s ease,color .2s ease;}
+  a{color:inherit;text-decoration:none;}
+  code, .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 24px;}
+
+  header{position:sticky;top:0;z-index:60;background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+  nav{display:flex;align-items:center;gap:20px;padding:16px 24px;max-width:1160px;margin:0 auto;}
+  .brand{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.1rem;color:var(--teal);white-space:nowrap;}
+  .navlinks{display:flex;gap:22px;font-size:0.9rem;color:var(--text-dim);flex:1;}
+  .navlinks a:hover{color:var(--text);}
+  #globalSearch{
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    padding:8px 12px;border-radius:6px;font-size:0.85rem;width:200px;font-family:'JetBrains Mono',monospace;
+  }
+  #themeToggle{
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    padding:8px 12px;border-radius:6px;cursor:pointer;font-size:0.85rem;
+  }
+  @media (max-width:900px){ .navlinks{display:none;} }
+
+  /* HERO */
+  .hero{padding:80px 0 64px;}
+  .term{
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  }
+  .term-bar{display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line);}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--line);}
+  .term-body{padding:32px;}
+  .term-body h1{font-family:'JetBrains Mono',monospace;font-size:clamp(1.6rem,4vw,2.6rem);line-height:1.3;font-weight:700;}
+  .term-body h1 .prompt{color:var(--teal);}
+  .term-body p{margin-top:16px;color:var(--text-dim);max-width:560px;font-size:1.02rem;}
+  .hero-ctas{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;}
+  .btn{padding:11px 20px;border-radius:6px;font-size:0.92rem;font-weight:600;border:1px solid var(--line);}
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:#04140f;}
+  .btn.ghost:hover{border-color:var(--teal);}
+
+  section{padding:64px 0;border-top:1px solid var(--line);}
+  .shead{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;gap:20px;flex-wrap:wrap;}
+  .shead h2{font-size:clamp(1.4rem,2.6vw,1.9rem);font-weight:700;}
+  .shead p{color:var(--text-dim);font-size:0.95rem;margin-top:6px;max-width:480px;}
+  .tag-filters{display:flex;gap:8px;flex-wrap:wrap;}
+  .tag-btn{
+    font-family:'JetBrains Mono',monospace;font-size:0.75rem;padding:6px 12px;border-radius:20px;
+    border:1px solid var(--line);color:var(--text-dim);cursor:pointer;background:transparent;
+  }
+  .tag-btn.active{background:var(--teal);border-color:var(--teal);color:#04140f;}
+
+  /* CARD GRID */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;}
+  .card h3{font-size:1.02rem;font-weight:700;}
+  .card p{color:var(--text-dim);font-size:0.88rem;margin-top:8px;}
+  .card .tags{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:0.68rem;background:var(--surface-2);color:var(--teal);padding:3px 8px;border-radius:4px;}
+  @media (max-width:900px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:620px){ .grid{grid-template-columns:1fr;} }
+
+  /* GLOSARIO */
+  details{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin-bottom:10px;}
+  summary{cursor:pointer;font-weight:600;font-family:'JetBrains Mono',monospace;font-size:0.92rem;}
+  details p{margin-top:10px;color:var(--text-dim);font-size:0.9rem;}
+
+  /* TOOLS */
+  .tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media (max-width:820px){ .tool-grid{grid-template-columns:1fr;} }
+  .tool-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;}
+  .tool-card h3{font-family:'JetBrains Mono',monospace;font-size:0.98rem;margin-bottom:12px;}
+  textarea, input[type=text], input[type=number]{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    border-radius:6px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:0.85rem;
+  }
+  textarea{min-height:70px;resize:vertical;}
+  .tool-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .tool-row .btn{padding:8px 14px;font-size:0.82rem;cursor:pointer;}
+  .tool-out{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--teal);word-break:break-all;background:var(--surface-2);padding:10px;border-radius:6px;min-height:20px;}
+  label{font-size:0.8rem;color:var(--text-dim);display:block;margin-top:10px;}
+  input[type=range]{width:100%;}
+
+  /* PROFILE */
+  .profile{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;}
+  .profile-links{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-width:280px;}
+  .plink{background:var(--surface);border:1px solid var(--line);padding:16px;border-radius:8px;display:block;}
+  a.plink:hover{border-color:var(--teal);}
+  .plink span{display:block;color:var(--text-dim);font-size:0.8rem;margin-top:4px;}
+
+  footer{padding:40px 0;color:var(--text-dim);font-size:0.85rem;border-top:1px solid var(--line);}
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <span class="brand">zyroxhub@web:~$</span>
+    <div class="navlinks">
+      <a href="#directorio">Herramientas</a>
+      <a href="#osint">OSINT</a>
+      <a href="#tutoriales">Tutoriales</a>
+      <a href="#blog">Blog</a>
+      <a href="#glosario">Glosario</a>
+      <a href="#mini-tools">Utilidades</a>
+      <a href="#perfil">Perfil</a>
+    </div>
+    <input type="text" id="globalSearch" placeholder="buscar en el directorio...">
+    <button id="themeToggle">🌙</button>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <section class="hero" style="border-top:none;">
+    <div class="term">
+      <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      <div class="term-body">
+        <h1><span class="prompt">$</span> bienvenido a ZyroxHub_</h1>
+        <p>Herramientas, recursos de OSINT y ciberseguridad, tutoriales de Termux/Linux/Android y utilidades que funcionan directo en el navegador. Sin cuentas, sin login — entras y usas.</p>
+        <div class="hero-ctas">
+          <a href="#directorio" class="btn primary">Ver herramientas</a>
+          <a href="#mini-tools" class="btn ghost">Probar utilidades</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="directorio">
+    <div class="shead">
+      <div>
+        <h2>Directorio de herramientas</h2>
+        <p>Apps y utilidades organizadas por categoría. Filtra por etiqueta o usa el buscador de arriba.</p>
+      </div>
+      <div class="tag-filters" id="tagFilters">
+        <button class="tag-btn active" data-tag="all">todas</button>
+        <button class="tag-btn" data-tag="red">red</button>
+        <button class="tag-btn" data-tag="osint">osint</button>
+        <button class="tag-btn" data-tag="android">android</button>
+        <button class="tag-btn" data-tag="anonimato">anonimato</button>
+      </div>
+    </div>
+    <div class="grid" id="toolDirectory">
+      <div class="card" data-title="nmap" data-tags="red">
+        <h3>Nmap</h3><p>Escáner de puertos y redes, el estándar para reconocimiento.</p>
+        <div class="tags"><span class="chip">red</span></div>
+      </div>
+      <div class="card" data-title="sherlock" data-tags="osint">
+        <h3>Sherlock</h3><p>Busca un nombre de usuario en cientos de redes sociales.</p>
+        <div class="tags"><span class="chip">osint</span></div>
+      </div>
+      <div class="card" data-title="termux" data-tags="android">
+        <h3>Termux</h3><p>Terminal Linux completa para Android, sin root.</p>
+        <div class="tags"><span class="chip">android</span></div>
+      </div>
+      <div class="card" data-title="tor browser" data-tags="anonimato">
+        <h3>Tor Browser</h3><p>Navegación anónima a través de la red Tor.</p>
+        <div class="tags"><span class="chip">anonimato</span></div>
+      </div>
+      <div class="card" data-title="wireshark" data-tags="red">
+        <h3>Wireshark</h3><p>Analizador de tráfico de red en tiempo real.</p>
+        <div class="tags"><span class="chip">red</span></div>
+      </div>
+      <div class="card" data-title="theharvester" data-tags="osint">
+        <h3>theHarvester</h3><p>Recolecta correos, subdominios y hosts públicos.</p>
+        <div class="tags"><span class="chip">osint</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="osint">
+    <div class="shead">
+      <div>
+        <h2>Recursos de OSINT y ciberseguridad</h2>
+        <p>Enlaces educativos a documentación oficial, wikis y hojas de referencia — nada alojado aquí, solo guía.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>OWASP Cheat Sheets</h3><p>Buenas prácticas de seguridad web, oficiales y gratuitas.</p></div>
+      <div class="card"><h3>OSINT Framework</h3><p>Mapa interactivo de fuentes abiertas por categoría.</p></div>
+      <div class="card"><h3>Exploit-DB</h3><p>Base de datos pública de vulnerabilidades documentadas.</p></div>
+    </div>
+  </section>
+
+  <section id="tutoriales">
+    <div class="shead">
+      <div><h2>Tutoriales paso a paso</h2><p>Guías prácticas para ir de cero a funcional.</p></div>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Termux desde cero</h3><p>Instalación, paquetes esenciales y primeros comandos.</p></div>
+      <div class="card"><h3>Redes para principiantes</h3><p>IP, puertos, DNS y cómo se conecta todo.</p></div>
+      <div class="card"><h3>Android + Linux</h3><p>Cómo aprovechar tu celular como entorno de desarrollo.</p></div>
+    </div>
+  </section>
+
+  <section id="blog">
+    <div class="shead">
+      <div><h2>Blog y noticias</h2><p>Actualidad tech y vulnerabilidades recientes.</p></div>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Últimas CVEs de la semana</h3><p>Resumen de vulnerabilidades críticas reportadas.</p></div>
+      <div class="card"><h3>Novedades en Termux</h3><p>Cambios y nuevos paquetes en el repositorio.</p></div>
+      <div class="card"><h3>Herramientas nuevas</h3><p>Lo último que llegó al directorio de ZyroxHub.</p></div>
+    </div>
+  </section>
+
+  <section id="glosario">
+    <div class="shead"><div><h2>Glosario técnico</h2><p>Términos comunes explicados simple.</p></div></div>
+    <details><summary>OSINT</summary><p>Open Source Intelligence: inteligencia obtenida de fuentes públicas y abiertas.</p></details>
+    <details><summary>Payload</summary><p>El código o dato que realmente ejecuta la acción dentro de un exploit o script.</p></details>
+    <details><summary>Sandbox</summary><p>Entorno aislado donde se prueba software sin afectar el sistema real.</p></details>
+    <details><summary>Root</summary><p>Acceso total de administrador sobre un sistema Linux/Android.</p></details>
+  </section>
+
+  <section id="mini-tools">
+    <div class="shead"><div><h2>Utilidades interactivas</h2><p>Corren directo en tu navegador, sin enviar nada a ningún servidor.</p></div></div>
+    <div class="tool-grid">
+
+      <div class="tool-card">
+        <h3>🔤 Base64</h3>
+        <textarea id="b64input" placeholder="Escribe o pega texto..."></textarea>
+        <div class="tool-row">
+          <button class="btn ghost" onclick="b64encode()">Codificar</button>
+          <button class="btn ghost" onclick="b64decode()">Decodificar</button>
+        </div>
+        <div class="tool-out" id="b64out"></div>
+      </div>
+
+      <div class="tool-card">
+        <h3>🔒 Generador de hash</h3>
+        <textarea id="hashinput" placeholder="Texto a convertir..."></textarea>
+        <div class="tool-row">
+          <button class="btn ghost" onclick="makeHash('SHA-1')">SHA-1</button>
+          <button class="btn ghost" onclick="makeHash('SHA-256')">SHA-256</button>
+          <button class="btn ghost" onclick="makeHash('SHA-512')">SHA-512</button>
+        </div>
+        <div class="tool-out" id="hashout"></div>
+      </div>
+
+      <div class="tool-card">
+        <h3>🔑 Generador de contraseñas</h3>
+        <label>Longitud: <span id="lenLabel">16</span></label>
+        <input type="range" id="pwLen" min="6" max="64" value="16" oninput="document.getElementById('lenLabel').textContent=this.value">
+        <div class="tool-row">
+          <label style="margin:0;"><input type="checkbox" id="pwSymbols" checked> símbolos</label>
+          <label style="margin:0;"><input type="checkbox" id="pwNumbers" checked> números</label>
+        </div>
+        <div class="tool-row"><button class="btn primary" onclick="genPassword()">Generar</button></div>
+        <div class="tool-out" id="pwout"></div>
+      </div>
+
+      <div class="tool-card">
+        <h3>🌐 Mi IP pública</h3>
+        <p style="color:var(--text-dim);font-size:0.85rem;">WHOIS de dominios necesita servidor propio (CORS) — esto sí corre 100% en el navegador.</p>
+        <div class="tool-row"><button class="btn ghost" onclick="getIP()">Consultar mi IP</button></div>
+        <div class="tool-out" id="ipout"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="perfil">
+    <div class="shead"><div><h2>Sobre mí</h2><p>Los proyectos detrás de ZyroxHub.</p></div></div>
+    <div class="profile">
+      <div class="profile-links">
+        <a class="plink" href="https://youtube.com/@soyzyroxyt3?si=9RBUoBpzvpbP2ZR8" target="_blank" rel="noopener">YouTube — SoyZyroxYT<span>Canal principal, contenido de Termux</span></a>
+        <a class="plink" href="https://t.me/+YTo_6NIUzEs1M2Rh" target="_blank" rel="noopener">Canal de Telegram<span>Únete a la comunidad</span></a>
+        <a class="plink" href="https://discord.gg/wPwq56TWk" target="_blank" rel="noopener">Servidor de Discord<span>Chatea con la comunidad</span></a>
+        <div class="plink">Aprende Termux<span>Guía web de comandos y herramientas</span></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">ZyroxHub — hecho para la comunidad, sin login, sin fricción.</div>
+</footer>
+
+<script>
+  // Theme toggle
+  const root = document.documentElement;
+  const saved = localStorage.getItem('zyroxhub-theme');
+  if(saved) root.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').onclick = () => {
+    const now = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', now === 'dark' ? '' : 'light');
+    localStorage.setItem('zyroxhub-theme', now);
+    document.getElementById('themeToggle').textContent = now === 'light' ? '☀️' : '🌙';
+  };
+
+  // Tag filter
+  const cards = document.querySelectorAll('#toolDirectory .card');
+  document.getElementById('tagFilters').addEventListener('click', (e)=>{
+    if(!e.target.classList.contains('tag-btn')) return;
+    document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    const tag = e.target.dataset.tag;
+    cards.forEach(c=>{
+      c.classList.toggle('hidden', tag !== 'all' && c.dataset.tags !== tag);
+    });
+  });
+
+  // Global search (filters directory cards by title)
+  document.getElementById('globalSearch').addEventListener('input', (e)=>{
+    const q = e.target.value.toLowerCase();
+    cards.forEach(c=>{
+      const match = c.dataset.title.includes(q);
+      c.classList.toggle('hidden', q.length>0 && !match);
+    });
+  });
+
+  // Base64
+  function b64encode(){
+    const v = document.getElementById('b64input').value;
+    document.getElementById('b64out').textContent = btoa(unescape(encodeURIComponent(v)));
+  }
+  function b64decode(){
+    const v = document.getElementById('b64input').value;
+    try{ document.getElementById('b64out').textContent = decodeURIComponent(escape(atob(v))); }
+    catch(e){ document.getElementById('b64out').textContent = 'Error: no es Base64 válido'; }
+  }
+
+  // Hash
+  async function makeHash(algo){
+    const v = document.getElementById('hashinput').value;
+    const enc = new TextEncoder().encode(v);
+    const buf = await crypto.subtle.digest(algo, enc);
+    const hex = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    document.getElementById('hashout').textContent = algo + ': ' + hex;
+  }
+
+  // Password generator
+  function genPassword(){
+    const len = +document.getElementById('pwLen').value;
+    const useSymbols = document.getElementById('pwSymbols').checked;
+    const useNumbers = document.getElementById('pwNumbers').checked;
+    let chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if(useNumbers) chars += '0123456789';
+    if(useSymbols) chars += '!@#$%^&*()_-+=?';
+    let pw = '';
+    const rand = new Uint32Array(len);
+    crypto.getRandomValues(rand);
+    for(let i=0;i<len;i++) pw += chars[rand[i] % chars.length];
+    document.getElementById('pwout').textContent = pw;
+  }
+
+  // Public IP lookup
+  function getIP(){
+    document.getElementById('ipout').textContent = 'Consultando...';
+    fetch('https://api.ipify.org?format=json')
+      .then(r=>r.json())
+      .then(d=> document.getElementById('ipout').textContent = 'Tu IP pública: ' + d.ip)
+      .catch(()=> document.getElementById('ipout').textContent = 'No se pudo consultar (sin conexión o bloqueado).');
+  }
+</script>
+
+</body>
+</html>
